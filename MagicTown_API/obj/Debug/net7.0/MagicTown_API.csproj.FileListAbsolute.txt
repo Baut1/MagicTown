@@ -78,3 +78,5 @@ G:\Bauti\source\repos\MagicTown\MagicTown_API\bin\Debug\net7.0\runtimes\win\lib\
 G:\Bauti\source\repos\MagicTown\MagicTown_API\bin\Debug\net7.0\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
 G:\Bauti\source\repos\MagicTown\MagicTown_API\bin\Debug\net7.0\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
 G:\Bauti\source\repos\MagicTown\MagicTown_API\bin\Debug\net7.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
+G:\Bauti\source\repos\MagicTown\MagicTown_API\bin\Debug\net7.0\AutoMapper.dll
+G:\Bauti\source\repos\MagicTown\MagicTown_API\bin\Debug\net7.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll

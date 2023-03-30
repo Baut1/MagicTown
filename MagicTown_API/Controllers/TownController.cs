@@ -1,4 +1,5 @@
-﻿using MagicTown_API.Datos;
+﻿using AutoMapper;
+using MagicTown_API.Datos;
 using MagicTown_API.Modelos;
 using MagicTown_API.Modelos.DTO;
 using Microsoft.AspNetCore.Http;
@@ -14,26 +15,31 @@ namespace MagicTown_API.Controllers
     {
         private readonly ILogger<TownController> _logger;
         private readonly ApplicationDbContext _db;
+        private readonly IMapper _mapper;
 
-        public TownController(ILogger<TownController> logger, ApplicationDbContext db)
+        public TownController(ILogger<TownController> logger, ApplicationDbContext db, IMapper mapper)
         {
             _logger = logger;
             _db = db;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<TownDTO>> GetTowns()
+        public async Task<ActionResult<IEnumerable<TownDTO>>> GetTowns()
         {
             _logger.LogInformation("Obtain the towns");
-            return Ok(_db.Towns.ToList());
+
+            IEnumerable<Town> townList = await _db.Towns.ToListAsync();
+
+            return Ok(_mapper.Map<IEnumerable<TownDTO>>(townList));
         }
 
         [HttpGet("id:int", Name="GetTown")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<TownDTO> GetTown(int id)
+        public async Task<ActionResult<TownDTO>> GetTown(int id)
         {
             if (id == 0)
             {
@@ -41,70 +47,57 @@ namespace MagicTown_API.Controllers
                 return BadRequest();
             }
 
-            var town = _db.Towns.FirstOrDefault(t =>  t.Id == id);
+            var town = await _db.Towns.FirstOrDefaultAsync(t =>  t.Id == id);
 
             if (town == null)
             {
                 return NotFound();
             }
 
-            return Ok(town);
+            return Ok(_mapper.Map<TownDTO>(town));
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<TownDTO> CreateTown([FromBody] TownDTO townDTO)
+        public async Task<ActionResult<TownDTO>> CreateTown([FromBody] TownCreateDTO createDTO)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (_db.Towns.FirstOrDefault(t => t.Name.ToLower() == townDTO.Name.ToLower()) != null)
+            if (await _db.Towns.FirstOrDefaultAsync(t => t.Name.ToLower() == createDTO.Name.ToLower()) != null)
             {
                 ModelState.AddModelError("NameExists", "The town with that name already exists!");
                 return BadRequest(ModelState);
             }
 
-            if (townDTO == null)
+            if (createDTO == null)
             {
-                return BadRequest(townDTO);
-            }
-            if (townDTO.Id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return BadRequest(createDTO);
             }
 
-            Town modelo = new()
-            {
-                Name = townDTO.Name,
-                Detalle = townDTO.Detalle,
-                ImagenURL = townDTO.ImagenURL,
-                Ocupantes = townDTO.Ocupantes,
-                Tarifa = townDTO.Tarifa,
-                MetrosCuadrados = townDTO.MetrosCuadrados,
-                Amenidad = townDTO.Amenidad,
-            };
+            Town modelo = _mapper.Map<Town>(createDTO);
 
-            _db.Towns.Add(modelo);
-            _db.SaveChanges();
+            await _db.Towns.AddAsync(modelo);
+            await _db.SaveChangesAsync();
 
-            return CreatedAtRoute("GetTown", new {id=townDTO.Id}, townDTO);
+            return CreatedAtRoute("GetTown", new {id=modelo.Id}, modelo);
         }
 
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteTown(int id)
+        public async Task<IActionResult> DeleteTown(int id)
         {
             if (id == 0)
             {
                 return BadRequest();
             }
 
-            var town = _db.Towns.FirstOrDefault(t => t.Id == id);
+            var town = await _db.Towns.FirstOrDefaultAsync(t => t.Id == id);
 
             if (town == null)
             {
@@ -112,7 +105,7 @@ namespace MagicTown_API.Controllers
             }
 
             _db.Towns.Remove(town);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
 
             return NoContent();
         }
@@ -120,27 +113,17 @@ namespace MagicTown_API.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)] 
-        public IActionResult UpdateTown(int id, [FromBody] TownDTO townDTO)
+        public async Task<IActionResult> UpdateTown(int id, [FromBody] TownUpdateDTO updateDTO)
         {
-            if (townDTO == null || id != townDTO.Id)
+            if (updateDTO == null || id != updateDTO.Id)
             {
                 return BadRequest();
             }
 
-            Town modelo = new()
-            {
-                Id = townDTO.Id,
-                Name = townDTO.Name,
-                Detalle = townDTO.Detalle,
-                ImagenURL = townDTO.ImagenURL,
-                Ocupantes = townDTO.Ocupantes,
-                Tarifa = townDTO.Tarifa,
-                MetrosCuadrados = townDTO.MetrosCuadrados,
-                Amenidad = townDTO.Amenidad,
-            };
+            Town modelo = _mapper.Map<Town>(updateDTO);
             
             _db.Towns.Update(modelo);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
 
             return NoContent();
         }
@@ -148,26 +131,16 @@ namespace MagicTown_API.Controllers
         [HttpPatch("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdatePartialTown(int id, JsonPatchDocument<TownDTO> patchDTO)
+        public async Task<IActionResult> UpdatePartialTown(int id, JsonPatchDocument<TownUpdateDTO> patchDTO)
         {
             if (patchDTO == null || id == 0)
             {
                 return BadRequest();
             }
 
-            var town = _db.Towns.AsNoTracking().FirstOrDefault(t => t.Id == id);
+            var town = await _db.Towns.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
 
-            TownDTO townDTO = new()
-            {
-                Id = town.Id,
-                Name = town.Name,
-                Detalle = town.Detalle,
-                ImagenURL = town.ImagenURL,
-                Ocupantes = town.Ocupantes,
-                Tarifa = town.Tarifa,
-                MetrosCuadrados = town.MetrosCuadrados,
-                Amenidad = town.Amenidad
-            };
+            TownUpdateDTO townDTO = _mapper.Map<TownUpdateDTO>(town);
 
             if (town == null)
             {
@@ -181,20 +154,10 @@ namespace MagicTown_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            Town modelo = new()
-            {
-                Id = townDTO.Id,
-                Name = townDTO.Name,
-                Detalle = townDTO.Detalle,
-                ImagenURL = townDTO.ImagenURL,
-                Ocupantes = townDTO.Ocupantes,
-                Tarifa = townDTO.Tarifa,
-                MetrosCuadrados = townDTO.MetrosCuadrados,
-                Amenidad = townDTO.Amenidad,
-            };
+            Town modelo = _mapper.Map<Town>(townDTO);
 
             _db.Towns.Update(modelo);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
 
             return NoContent();
         }

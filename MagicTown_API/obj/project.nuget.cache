@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "1+QDlyGvfjSvKMsD+HXBvG6vw/CbyMUFgO8ggfOrBiA9FZ8Ec2JmSomL+p4SRnHCSfpda1hGsp8S8L6qdUEAgg==",
+  "dgSpecHash": "NMlufuPjVXeg0/6JNZNi9JXjBqeqpk++jYPlGs8ic9NmY8MAZnx2gqdwnH/LcYq5FUVurjh+D73r5N34LnlHdw==",
   "success": true,
   "projectFilePath": "G:\\Bauti\\source\\repos\\MagicTown\\MagicTown_API\\MagicTown_API.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Bauti\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
+    "C:\\Users\\Bauti\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.0\\automapper.extensions.microsoft.dependencyinjection.12.0.0.nupkg.sha512",
     "C:\\Users\\Bauti\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\Bauti\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\Bauti\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
