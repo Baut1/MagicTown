@@ -1,5 +1,7 @@
 using MagicTown_API;
 using MagicTown_API.Datos;
+using MagicTown_API.Repositorio;
+using MagicTown_API.Repositorio.IRepositorio;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 });
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+
+builder.Services.AddScoped<ITownRepositorio, TownRepositorio>();
+builder.Services.AddScoped<INumeroTownRepositorio, NumeroTownRepositorio>();
 
 var app = builder.Build();
 

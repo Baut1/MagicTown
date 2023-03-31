@@ -13,6 +13,10 @@ namespace MagicTown_API
 
             CreateMap<Town, TownCreateDTO>().ReverseMap();
             CreateMap<Town, TownUpdateDTO>().ReverseMap();
+
+            CreateMap<NumeroTown, NumeroTownDTO>().ReverseMap();
+            CreateMap<NumeroTown, NumeroTownCreateDTO>().ReverseMap();
+            CreateMap<NumeroTown, NumeroTownUpdateDTO>().ReverseMap();
         }
     }
 }

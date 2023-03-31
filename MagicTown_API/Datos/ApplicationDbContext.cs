@@ -13,6 +13,8 @@ namespace MagicTown_API.Datos
 
         public DbSet<Town> Towns { get; set; }
 
+        public DbSet<NumeroTown> NumeroTowns { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Town>().HasData(
